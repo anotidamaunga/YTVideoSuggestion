@@ -10,7 +10,7 @@ MODEL = "deepseek-chat"
 
 
 def client(api_key: str)->OpenAI:
-    return OpenAI(api_key, base_url=DEEPSEEK_BASE_URL)
+    return OpenAI(api_key=api_key, base_url=DEEPSEEK_BASE_URL)
 
 def chat(client: OpenAI, system: str, user:str, json_mode:bool=False) -> str:
     response = client.chat.completions.create(
@@ -41,6 +41,22 @@ def reduce_summaries(client: OpenAI, chunk_summaries: list[str]) -> str:
               )
     joined_summaries = "\n\n".join(f"Section{i+1}: {s}" for i, s in enumerate(chunk_summaries))
     return chat(client, system, joined_summaries).strip()
+
+
+def extract_keyphrases(client: OpenAI, summary: str, n: int = 8) -> list[str]:
+    """Pull the most important topics/terms out of the document summary."""
+    system = (
+        f"You extract the {n} most important key terms or topics (1-4 words each) "
+        "from a document summary. Respond with JSON: "
+        "{\"keyphrases\": [\"term1\", \"term2\", ...]}."
+    )
+    raw = chat(client, system, summary, json_mode=True)
+    try:
+        data = json.loads(raw)
+        keyphrases = [str(k).strip() for k in data.get("keyphrases", []) if str(k).strip()]
+    except (json.JSONDecodeError, AttributeError):
+        keyphrases = []
+    return keyphrases[:n]
 
 
 def generate_search_queries(client: OpenAI, keyphrases: list[str], summary: str, n: int = 4) -> list[str]:

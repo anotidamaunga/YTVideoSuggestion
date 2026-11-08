@@ -7,7 +7,7 @@ from docx import Document
 supported_extensions = {"pdf", "pptx", "docx", "md"}
 
 def parse_documents(filename: str, file_bytes: bytes) -> str:
-    ext = filename.split(".", 1)[-1].lower()
+    ext = filename.rsplit(".", 1)[-1].lower()
     if ext not in supported_extensions:
         raise ValueError("Unsupported file extension")
 
