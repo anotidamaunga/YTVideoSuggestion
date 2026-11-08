@@ -9,4 +9,12 @@ User uploads lecture slides or any other material and the app will:
 3. Search Youtube for videos based on those terms.
 4. Rank the videos by the how similar to the document they are combined with the amount of views
 
+
+ Run the app
+
+```bash
+streamlit run app.py
+```
+
+---
 Work in Progress
